@@ -1,7 +1,8 @@
 import React from 'react'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
-import { Input } from '@mui/material'
+import SnackBar from '@mui/material/Snackbar'
+import { Input, Box } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 const SearchInput = styled(Input)`
@@ -33,18 +34,25 @@ const StyledButton = styled(Button)`
     }
 `
 
-const DashboardContent = () => {
+const DashboardContent = ({ value, handleChange, handleGetWeather, error }) => {
     return (
-        <Stack justifyContent='center' direction='column' alignItems='center'>
-            <SearchInput placeholder='Enter the City' />
-            <StyledButton variant='outlined' sx={{
-                ':hover': {
-                    borderWidth: '3px',
-                    borderColor: '#1a237e',
-                    color: '#1a237e'
-                }
-            }}>Get Weather</StyledButton>
-        </Stack>
+        <Box>
+            <Stack justifyContent='center' direction='column' alignItems='center'>
+                <SearchInput placeholder='Enter the City' value={value} onChange={handleChange} error={!!error} />
+                <StyledButton onClick={handleGetWeather} variant='outlined' sx={{
+                    ':hover': {
+                        borderWidth: '3px',
+                        borderColor: '#1a237e',
+                        color: '#1a237e'
+                    }
+                }}>Get Weather</StyledButton>
+            </Stack>
+            <SnackBar
+                open={!!error}
+                onClose={handleChange}
+                message={error}
+            />
+        </Box>
     )
 }
 
