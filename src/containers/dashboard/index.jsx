@@ -4,40 +4,57 @@ import DashboardHeader from './components/DashboardHeader'
 import DashboardContent from './components/DashboardContent'
 import { get } from '../../api/Api'
 import { useNavigate } from 'react-router-dom'
-import { WeatherContext, WeatherDispatchContext } from '../../router/Router'
+import { WeatherDispatchContext } from '../../router/Router'
+import moment from 'moment-timezone'
 
 
 const Dashboard = () => {
-    const [value, setValue] = useState('')
+    const [searchData, setSearchData] = useState({
+        cityName: '',
+        startDate: '',
+        endDate: ''
+    })
     const [error, setError] = useState('')
     const navigate = useNavigate()
     const dispatch = useContext(WeatherDispatchContext)
     const handleChange = (e) => {
-        setValue(e.target.value)
+        setSearchData({ ...searchData, [e.target.name]: e.target.value })
         setError('')
     }
-    const handleGetWeather = async (url = 'current') => {
+    const handleGetWeather = async () => {
+        const { cityName, startDate, endDate } = searchData
+        console.log(cityName, startDate, endDate)
+        if (moment(startDate).isAfter(moment(endDate))) {
+            setError('Start Date should be less than End Date')
+            return
+        }
+        if (moment(endDate).isAfter(moment()) || moment(startDate).isAfter(moment())) {
+            setError('End Date should be less than Current Date')
+            return
+        }
         let query = {
-            start_date: '2024-03-18',
-            end_date: '2024-03-20',
-            city: value,
-            // includes: 'minutely'
+            start_date: startDate,
+            end_date: moment(endDate).add(1, 'day').format('YYYY-MM-DD'),
+            city: cityName,
         }
         await get('history/energy', query)
             .then(res => {
-                if (res.data.data[0].lat == 0 || res.data.data[0].lon == 0) return setError("City not found!")
+                if (res.data.data[0]?.lat == 0 || res.data.data[0]?.lon == 0 || !res.data.data.length) return setError("City not found!")
                 dispatch({
                     type: 'storeData',
                     payload: res.data
                 })
                 navigate('/weatherdetails')
             })
-            .catch(err => setError(err.response.message || err.message))
+            .catch(err => {
+                console.log(err)
+                setError(err.response.data.error || err.message)
+            })
     }
     return (
         <Stack justifyContent='space-around' direction='column' alignItems="center" sx={{ height: '100%', }}>
             <DashboardHeader />
-            <DashboardContent value={value} handleChange={handleChange} handleGetWeather={handleGetWeather} error={error} />
+            <DashboardContent searchData={searchData} handleChange={handleChange} handleGetWeather={handleGetWeather} error={error} />
         </Stack>
     )
 }
