@@ -1,9 +1,10 @@
 import React from 'react'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
-import SnackBar from '@mui/material/Snackbar'
+import { Snackbar } from '@mui/material'
 import { Input, Box } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import CustomDateRangePicker from '../../../components/CustomDateRangePicker'
 
 const SearchInput = styled(Input)`
     width: 40vw;
@@ -34,11 +35,12 @@ const StyledButton = styled(Button)`
     }
 `
 
-const DashboardContent = ({ value, handleChange, handleGetWeather, error }) => {
+const DashboardContent = ({ searchData, handleChange, handleGetWeather, error }) => {
     return (
         <Box>
             <Stack justifyContent='center' direction='column' alignItems='center'>
-                <SearchInput placeholder='Enter the City' value={value} onChange={handleChange} error={!!error} />
+                <CustomDateRangePicker searchData={searchData} handleChange={handleChange} />
+                <SearchInput name='cityName' placeholder='Enter the City' value={searchData.cityName} onChange={handleChange} error={!!error} />
                 <StyledButton onClick={handleGetWeather} variant='outlined' sx={{
                     ':hover': {
                         borderWidth: '3px',
@@ -47,7 +49,7 @@ const DashboardContent = ({ value, handleChange, handleGetWeather, error }) => {
                     }
                 }}>Get Weather</StyledButton>
             </Stack>
-            <SnackBar
+            <Snackbar
                 open={!!error}
                 onClose={handleChange}
                 message={error}
