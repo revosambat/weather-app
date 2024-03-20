@@ -15,7 +15,7 @@ const Heading = styled(Typography)`
 `
 const DashboardHeader = () => {
     return (
-        <Heading level="h1">Weather Forecast</Heading>
+        <Heading level="h1">Weather History</Heading>
     )
 }
 
